@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>使用提示工程改善用户对话交互体验</title>
+  <style>
+:root {
+  /* 字体：正文宋体系 serif，标题黑体系（政府公文规范，与 Readmdvue 一致） */
+  --gov-font-body: 'Noto Serif CJK SC', 'Source Han Serif SC', 'Source Han Serif CN',
+    '仿宋', 'FangSong', '仿宋_GB2312', 'FangSong_GB2312',
+    '宋体', 'SimSun', 'STSong', 'Times New Roman', serif;
+  --gov-font-heading: 'Noto Sans CJK SC', 'Source Han Sans SC', 'Source Han Sans CN',
+    '黑体', 'SimHei', 'PingFang SC', 'Microsoft YaHei', 'Microsoft YaHei UI', sans-serif;
+  --gov-font-mono: 'SF Mono', 'Cascadia Code', Consolas, 'Courier New', monospace;
+
+  /* 布局 */
+  --gov-max-width: 1000px;
+  --gov-font-size: 16px;
+  --gov-line-height: 1.8;
+
+  /* 颜色：黑白严谨，无强调色 */
+  --gov-color-text: #1a1a1a;
+  --gov-color-heading: #000000;
+  --gov-color-secondary: #4a4a4a;
+  --gov-color-border: #8a8a8a;
+  --gov-color-border-light: #d0d0d0;
+  --gov-color-table-header-bg: #eaeaea;
+  --gov-color-code-bg: #f5f5f5;
+  --gov-color-quote-bg: #f7f7f7;
+  --gov-color-link: #0563c1;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--gov-font-body);
+  font-size: var(--gov-font-size);
+  line-height: var(--gov-line-height);
+  color: var(--gov-color-text);
+  background: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.gov-container {
+  max-width: var(--gov-max-width);
+  margin: 0 auto;
+  padding: 48px 56px 80px;
+}
+
+/* ===== 标题：黑体、黑色、无阴影无动画（公文规范） ===== */
+.gov-container h1,
+.gov-container h2,
+.gov-container h3,
+.gov-container h4,
+.gov-container h5,
+.gov-container h6 {
+  font-family: var(--gov-font-heading);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--gov-color-heading);
+  margin: 1.6em 0 0.6em;
+  scroll-margin-top: 20px;
+}
+
+.gov-container h1 {
+  font-size: var(--gov-heading1-size, 1.5em);
+  border-bottom: 1px solid #333333;
+  padding-bottom: 0.3em;
+}
+
+.gov-container h2 {
+  font-size: var(--gov-heading2-size, 1.25em);
+  border-left: 4px solid #333333;
+  padding-left: 0.5em;
+}
+
+.gov-container h3 { font-size: var(--gov-heading3-size, 1.1em); }
+.gov-container h4 { font-size: var(--gov-heading4-size, 1em); }
+.gov-container h5 { font-size: var(--gov-heading5-size, 0.95em); }
+.gov-container h6 { font-size: var(--gov-heading6-size, 0.9em); }
+
+/* ===== 正文段落：首行缩进 2 字符、两端对齐（公文规范） ===== */
+.gov-container p {
+  margin: 0 0 0.75em;
+  text-align: justify;
+  text-justify: inter-ideograph;
+  text-indent: 2em;
+}
+
+/* 列表/引用/表格/目录/代码块内段落不缩进 */
+.gov-container li p,
+.gov-container blockquote p,
+.gov-container td p,
+.gov-container .gov-toc p {
+  text-indent: 0;
+}
+
+/* ===== 列表 ===== */
+.gov-container ul,
+.gov-container ol {
+  margin: 0.5em 0 1em;
+  padding-left: 2em;
+}
+
+.gov-container li {
+  margin: 0.25em 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* ===== 表格：严谨全边框、表头浅灰居中、无斑马纹 ===== */
+.gov-container table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 100%;
+  table-layout: auto;
+  margin: 1em 0;
+  font-size: 0.95em;
+}
+
+.gov-container th,
+.gov-container td {
+  border: 1px solid var(--gov-color-border);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.gov-container th {
+  background: var(--gov-color-table-header-bg);
+  font-weight: 700;
+  text-align: center;
+  color: var(--gov-color-table-header-text, var(--gov-color-heading));
+}
+
+.gov-container tbody tr:nth-child(even) {
+  background: transparent;
+}
+
+.gov-container tbody tr:hover {
+  background: transparent;
+}
+
+/* ===== Mermaid 图表容器：居中、防溢出、黑白严谨 ===== */
+.gov-container .gov-mermaid {
+  margin: 1em 0;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.gov-container .gov-mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.gov-container .gov-mermaid-error {
+  border: 1px solid #d33;
+  background: #fdf2f2;
+  color: #a00;
+  padding: 8px 12px;
+  font-size: 0.9em;
+  margin: 1em 0;
+  text-align: left;
+}
+
+/* ===== 图片点击放大（与 Readmdvue 一致：双击图片 → 全屏模态框） ===== */
+.gov-container img {
+  cursor: zoom-in;
+}
+
+.gov-image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  cursor: zoom-out;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.gov-image-modal.show {
+  opacity: 1;
+}
+
+.gov-image-modal .gov-image-modal-content {
+  max-width: 94%;
+  max-height: 94%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.gov-image-modal img {
+  max-width: 90vw;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  cursor: default;
+  background: #ffffff;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== 代码块：简洁灰底等宽，不做彩色高亮（公文不花哨） ===== */
+.gov-container pre {
+  background: var(--gov-color-code-bg);
+  border: 1px solid var(--gov-color-border-light);
+  border-radius: 3px;
+  padding: 12px 16px;
+  overflow-x: auto;
+  font-size: 0.9em;
+  line-height: 1.6;
+  margin: 1em 0;
+}
+
+.gov-container code {
+  font-family: var(--gov-font-mono);
+  background: var(--gov-color-code-bg);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 0.92em;
+}
+
+.gov-container pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 1em;
+}
+
+/* ===== 代码高亮主题（GitHub 风格浅色，黑白灰为主，公文不花哨） ===== */
+.hljs {
+  color: #24292e;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-doctag,
+.hljs-name {
+  color: #d73a49;
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-addition {
+  color: #032f62;
+}
+.hljs-title,
+.hljs-section,
+.hljs-title.class_,
+.hljs-title.function_ {
+  color: #6f42c1;
+}
+.hljs-number,
+.hljs-literal,
+.hljs-symbol,
+.hljs-bullet {
+  color: #005cc5;
+}
+.hljs-comment,
+.hljs-quote {
+  color: #6a737d;
+  font-style: italic;
+}
+.hljs-variable,
+.hljs-template-variable,
+.hljs-attr,
+.hljs-attribute {
+  color: #e36209;
+}
+.hljs-built_in,
+.hljs-type {
+  color: #005cc5;
+}
+.hljs-meta {
+  color: #6a737d;
+}
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: 700;
+}
+
+/* ===== 引用：左侧深灰线 + 浅灰底 ===== */
+.gov-container blockquote {
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  background: var(--gov-color-quote-bg);
+  border-left: 3px solid var(--gov-color-border);
+  color: var(--gov-color-secondary);
+}
+
+/* ===== 链接：严谨下划线，不花哨 ===== */
+.gov-container a {
+  color: var(--gov-color-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ===== 图片 ===== */
+.gov-container img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ===== 水平线 ===== */
+.gov-container hr {
+  border: none;
+  border-top: 1px solid var(--gov-color-border);
+  margin: 1.5em 0;
+}
+
+/* ===== 目录：简洁容器 + 缩进层级 ===== */
+.gov-toc {
+  border: 1px solid var(--gov-color-border-light);
+  background: #fafafa;
+  padding: 1em 1.5em;
+  margin: 1em 0 2em;
+}
+
+.gov-toc-title {
+  font-family: var(--gov-font-heading);
+  font-weight: 700;
+  font-size: 1.1em;
+  color: var(--gov-color-heading);
+  text-align: center;
+  letter-spacing: 0.5em;
+  margin-bottom: 0.8em;
+}
+
+.gov-toc .gov-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.gov-toc .gov-toc-list ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 1.5em;
+}
+
+.gov-toc li {
+  margin: 0.2em 0;
+}
+
+.gov-toc a {
+  color: var(--gov-color-text);
+  text-decoration: none;
+}
+
+.gov-toc a:hover {
+  color: var(--gov-color-link);
+  text-decoration: underline;
+}
+
+/* ===== 公式（KaTeX 渲染后补充） ===== */
+.gov-container .math-formula {
+  font-family: 'Times New Roman', 'KaTeX_Main', serif;
+}
+
+.gov-container .math-block {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+  padding: 0.5em;
+  overflow-x: auto;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+/* ===== 打印支持（政府文档经常转 PDF） ===== */
+@media print {
+  body {
+    font-size: 12pt;
+  }
+  .gov-container {
+    max-width: none;
+    padding: 0;
+  }
+  .gov-container a {
+    color: #000;
+  }
+}
+
+/* ===== 移动端 ===== */
+@media (max-width: 768px) {
+  .gov-container {
+    padding: 24px 16px 48px;
+  }
+}
+
+:root {
+  --gov-font-body: SimSun, Noto Serif CJK SC, Source Han Serif SC, Source Han Serif CN, 仿宋, FangSong, 仿宋_GB2312, FangSong_GB2312, 宋体, SimSun, STSong, Times New Roman, serif;
+  --gov-font-heading: SimHei, Noto Sans CJK SC, Source Han Sans SC, Source Han Sans CN, 黑体, SimHei, PingFang SC, Microsoft YaHei, sans-serif;
+  --gov-font-mono: Consolas, SF Mono, Cascadia Code, Consolas, Courier New, monospace;
+  --gov-font-size: 14.67px;
+  --gov-line-height: 1.5;
+  --gov-text-indent: 2em;
+  --gov-heading1-size: 20px;
+  --gov-heading2-size: 17.33px;
+  --gov-heading3-size: 16px;
+  --gov-heading4-size: 16px;
+  --gov-heading5-size: 16px;
+  --gov-heading6-size: 16px;
+  --gov-color-text: #000000;
+  --gov-color-heading: #000000;
+  --gov-color-link: #0563C1;
+  --gov-color-border: #BFBFBF;
+  --gov-color-table-header-bg: #D9D9D9;
+  --gov-color-table-header-text: #000000;
+}</style>
+</head>
+<body>
+  <div class="gov-container">
+    <h1>使用提示工程改善用户对话交互体验</h1>
+<p>学院：医药工程学院<br>班级：药学2602<br>姓名：才大为<br>学号：2650302101</p>
+<h2>核心论点与论据</h2>
+<table>
+<thead>
+<tr>
+<th>论点</th>
+<th>论据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>清晰、具体的提示能减少用户与系统之间的理解偏差。</strong></td>
+<td>OpenAI 官方提示指南建议明确说明任务、背景、边界和输出形式，并用分隔符区分指令与待处理内容。比如，把“帮我总结”具体化为“面向第一次接触该主题的读者，用三点总结以下文本，每点不超过两句话”。<a href="https://developers.openai.com/api/docs/guides/prompting">OpenAI 提示指南</a></td>
+</tr>
+<tr>
+<td><strong>有结构的提示能让复杂任务更容易完成，也能提升回答的可用性。</strong></td>
+<td>Wei 等人在 NeurIPS 2022 发表的链式思维提示研究显示，在数学和符号推理等任务中，给大型语言模型提供包含中间推理步骤的示例，能改善部分复杂任务表现。这说明任务拆解与示例可以帮助模型处理多步骤要求；但研究结果并不意味着所有任务都适用同一种提示方法。<a href="https://proceedings.neurips.cc/paper_files/paper/2022/file/9d5609613524ecf4f15af0f7b31abca4-Paper-Conference.pdf">论文</a></td>
+</tr>
+<tr>
+<td><strong>提示工程能增强交互的可控性，但不能保证模型始终稳定服从。</strong></td>
+<td>Sclar 等人在 ICLR 2024 的研究发现，即使提示格式的变化不改变任务含义，模型表现也可能明显波动；这种现象会影响结果的稳定性和评估公平性。<a href="https://openreview.net/forum?id=RIu5lyNXjT">论文</a></td>
+</tr>
+<tr>
+<td><strong>良好体验需要持续评估和风险治理，而非只靠一条“完美提示词”。</strong></td>
+<td>NIST《生成式人工智能风险管理框架画像》（AI 600-1）强调，应在生成式 AI 生命周期中识别、评估和管理风险。用于产品时，这意味着除提示设计外，还要测试真实对话、监控失误，并为高风险问题设置人工复核或升级路径。<a href="https://doi.org/10.6028/NIST.AI.600-1">NIST AI 600-1</a></td>
+</tr>
+</tbody></table>
+<h2>正文</h2>
+<p>提示工程不是寻找一句神奇咒语，而是把用户的目标、对话所需的背景和系统应遵守的边界，表达得更清楚，并通过测试不断改进。对话体验也不只取决于答案“看起来聪明不聪明”，还取决于用户是否容易表达需求、答案是否切题、出错时是否能纠正，以及系统是否坦诚说明能力边界。</p>
+<h3>一、说清楚任务，减少“答非所问”</h3>
+<p>用户常常只说“帮我改一下”“这个怎么处理”，但系统未必知道用户想要什么：是缩短篇幅、修正语气，还是检查事实？提示设计可以把关键目标明确化：任务是什么、面向谁、要处理哪些材料、有什么限制、希望以什么形式回答。输入内容较长时，把指令与材料分开，也能减少混淆。</p>
+<p>例如，客服产品可以将“解释退款政策”设计为：“先根据以下政策回答用户的问题；用简明中文说明适用条件和所需步骤；如果政策没有覆盖该情况，明确说明并转交人工，不要自行承诺退款。”这类指令不一定让答案更华丽，却更可能使答案有用、边界清楚。</p>
+<h3>二、把复杂任务拆成用户看得懂的步骤</h3>
+<p>当用户需要比较方案、排查问题或完成多步骤操作时，一口气要求系统给出最终结论，容易遗漏信息。将交互组织为“确认目标—收集必要条件—分析选项—给出下一步”，可以让用户逐步补充背景，也便于发现误解。对格式要求严格的任务，还可以提供简短示例或固定输出结构，让结果更容易阅读和复用。</p>
+<p>不过，步骤不应变成额外负担。简单问题无需强行拆解；若任务有缺失信息，系统应只询问影响答案的关键问题，而不是让用户填写冗长表单。提示工程改善体验的标准，不是提示词写得多复杂，而是用户能否更省力地得到正确帮助。</p>
+<h3>三、围绕多轮对话设计连续性与纠错</h3>
+<p>一次对话通常不是单轮问答。用户会补充条件、改变目标，或指出“这不是我想要的”。产品提示应引导系统在后续轮次中结合相关上下文，区分新要求与旧要求；当用户纠正答案时，应优先响应纠正，而不是重复原先的结论。对于可能过时或不完整的信息，系统也应说明不确定之处，并告诉用户需要哪些补充材料。</p>
+<p>比如，写作助手可以先询问目标读者与语气，再按要求修改；用户说“保留原意，语气再自然一点”时，应只针对这项反馈迭代，而不是重新生成一篇风格完全不同的文本。这样的连续性来自明确的交互规则、适当的上下文管理和良好的反馈机制，不是单靠提示词就能无限记住所有内容。</p>
+<h3>四、用测试而非直觉改进提示</h3>
+<p>同一条提示在不同模型、不同输入和不同表达下，可能产生不同结果。研究中观察到的提示敏感性提醒我们：只挑一个看起来成功的例子，不足以证明设计可靠。团队可以建立一组代表性对话，覆盖常见需求、模糊提问、用户纠正和边界情况，并检查答案是否准确、是否遵守格式、是否在缺少依据时承认不确定，以及用户是否能顺利完成目标。提示变更后，用同一组案例对比结果，必要时再加入真实用户反馈。</p>
+<p>对高风险场景，还要把提示之外的措施纳入设计：例如限制系统可执行的操作、检索可信资料、设置安全规则、提供人工接管渠道，并持续监控故障。提示可以引导模型，却不能替代权限控制、事实核验或专业判断。</p>
+<h3>结语</h3>
+<p>提示工程能改善用户对话体验，关键不在于堆砌术语，而在于把目标、背景、步骤、输出和边界设计清楚，并针对真实使用情况反复评估。清晰指令降低误解，合理拆解降低任务负担，连续反馈改善多轮协作；同时，提示敏感性和生成式 AI 的固有限制意味着，稳定可靠的体验还需要测试、技术保障与人工支持。把提示工程视为产品交互设计的一部分，而非万能补丁，才能让对话系统更有帮助，也更值得信任。</p>
+<h2>参考资料</h2>
+<ol>
+<li>OpenAI, <a href="https://developers.openai.com/api/docs/guides/prompting">Prompting</a>（官方文档）。</li>
+<li>Jason Wei et al., <a href="https://proceedings.neurips.cc/paper_files/paper/2022/file/9d5609613524ecf4f15af0f7b31abca4-Paper-Conference.pdf">Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</a>, NeurIPS 2022。</li>
+<li>Gabriel Sclar et al., <a href="https://openreview.net/forum?id=RIu5lyNXjT">Quantifying Language Models’ Sensitivity to Spurious Features in Prompt Design</a>, ICLR 2024。</li>
+<li>NIST, <a href="https://doi.org/10.6028/NIST.AI.600-1">Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile (AI 600-1)</a>, 2024。</li>
+</ol>
+<h2>对话记录</h2>
+<p><img src="image.png" alt="GitHub"></p>
+
+  </div>
+  <script>
+(function () {
+  'use strict';
+
+  // ===== 1. 表格字号动态计算（与 gov 模板同一逻辑） =====
+  var MIN_FONT = 10.5;
+  var tables = document.querySelectorAll('.gov-container table');
+  for (var t = 0; t < tables.length; t++) {
+    var table = tables[t];
+    var cells = Array.prototype.slice.call(table.querySelectorAll('th, td'));
+    if (cells.length === 0) continue;
+
+    var current = parseFloat(window.getComputedStyle(table).fontSize) || 16;
+    if (current <= MIN_FONT) continue;
+    var avail = table.clientWidth;
+    if (avail <= 0) continue;
+
+    var originals = cells.map(function (c) { return c.style.whiteSpace; });
+    cells.forEach(function (c) { c.style.whiteSpace = 'nowrap'; });
+    var needWidth = table.scrollWidth;
+    cells.forEach(function (c, i) { c.style.whiteSpace = originals[i]; });
+
+    if (needWidth <= avail + 1) continue;
+    var target = current * (avail / needWidth) * 0.97;
+    target = Math.max(MIN_FONT, target);
+    table.style.fontSize = target + 'px';
+  }
+
+  // ===== 2. Mermaid 渲染（若有内嵌 mermaid.min.js 且存在未转图的 mermaid 代码块） =====
+  if (typeof window.mermaid !== 'undefined') {
+    var blocks = document.querySelectorAll('.gov-container pre code.language-mermaid');
+    if (blocks.length) {
+      try {
+        window.mermaid.initialize({
+          startOnLoad: false,
+          theme: 'default',
+          securityLevel: 'loose',
+          fontFamily: 'PingFang SC, Microsoft YaHei UI, Noto Serif CJK SC, SimSun, sans-serif',
+          fontSize: 14,
+          flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+          sequence: { useMaxWidth: true, wrap: true },
+          gantt: { useMaxWidth: true },
+          journey: { useMaxWidth: true },
+          gitGraph: { useMaxWidth: true }
+        });
+      } catch (e) { /* 忽略 */ }
+
+      for (var i = 0; i < blocks.length; i++) {
+        (function (el, idx) {
+          var code = (el.textContent || '').trim();
+          var pre = el.closest('pre');
+          if (!code || !pre) return;
+          var chartId = 'gov-mermaid-' + Date.now() + '-' + idx;
+          window.mermaid.render(chartId, code).then(function (res) {
+            var wrapper = document.createElement('div');
+            wrapper.className = 'gov-mermaid';
+            wrapper.innerHTML = res.svg;
+            pre.parentNode.replaceChild(wrapper, pre);
+          }).catch(function (err) {
+            var errBox = document.createElement('div');
+            errBox.className = 'gov-mermaid-error';
+            errBox.textContent = 'Mermaid 渲染失败: ' + ((err && err.message) || err || '未知错误');
+            pre.parentNode.insertBefore(errBox, pre);
+          });
+        })(blocks[i], i);
+      }
+    }
+  }
+
+  // ===== 3. 图片点击放大（与 gov 模板 / Readmdvue 一致：双击图片 → 全屏模态框） =====
+  var modal = null;
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.remove('show');
+    setTimeout(function () { if (modal && modal.parentNode) modal.parentNode.removeChild(modal); modal = null; }, 250);
+  }
+  function openModal(img) {
+    if (modal) { closeModal(); return; }
+    modal = document.createElement('div');
+    modal.className = 'gov-image-modal';
+    var content = document.createElement('div');
+    content.className = 'gov-image-modal-content';
+    var cloned = img.cloneNode(true);
+    cloned.removeAttribute('style');
+    content.appendChild(cloned);
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    setTimeout(function () { modal.classList.add('show'); }, 10);
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeModal();
+    });
+    var escHandler = function (e) {
+      if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', escHandler); }
+    };
+    document.addEventListener('keydown', escHandler);
+  }
+  document.addEventListener('dblclick', function (e) {
+    var target = e.target;
+    if (target && target.tagName === 'IMG' && target.closest('.gov-container')) {
+      e.preventDefault();
+      openModal(target);
+    }
+  });
+})();
+</script>
+</body>
+</html>
